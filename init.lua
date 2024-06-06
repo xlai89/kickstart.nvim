@@ -166,6 +166,15 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+-- Folding configuration
+vim.opt.foldmethod = 'expr'
+vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+vim.opt.foldcolumn = '0'
+vim.opt.foldtext = ''
+vim.opt.foldlevel = 99
+vim.opt.foldlevelstart = 1
+vim.opt.foldnestmax = 4
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -240,7 +249,7 @@ require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
 
-  'szw/vim-maximizer', -- Maximizes and restore splits
+  'github/copilot.vim',
 
   -- navigate seamlessly between vim and tmux splits
   -- using a consistent set of hotkeys.
@@ -331,6 +340,7 @@ require('lazy').setup({
 
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
+    version = 'v2.0.1',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     config = function() -- This is the function that runs, AFTER loading
       require('which-key').setup()
@@ -479,6 +489,9 @@ require('lazy').setup({
       -- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
       -- used for completion, annotations and signatures of Neovim apis
       { 'folke/neodev.nvim', opts = {} },
+
+      'someone-stole-my-name/yaml-companion.nvim',
+      'b0o/SchemaStore.nvim',
     },
     config = function()
       -- Brief aside: **What is LSP?**
@@ -621,6 +634,7 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
+        marksman = {},
         -- clangd = {},
         gopls = {},
         -- pyright = {},
@@ -648,6 +662,68 @@ require('lazy').setup({
             },
           },
         },
+
+        yamlls = {
+          -- Have to add this for yamlls to understand that we support line folding
+          capabilities = {
+            textDocument = {
+              foldingRange = {
+                dynamicRegistration = false,
+                lineFoldingOnly = true,
+              },
+            },
+          },
+
+          -- lazy-load schemastore when needed
+          on_new_config = function(new_config)
+            new_config.settings.yaml.schemas = vim.tbl_deep_extend('force', new_config.settings.yaml.schemas or {}, require('schemastore').yaml.schemas())
+          end,
+
+          -- detect k8s schemas based on file content
+          builtin_matchers = {
+            kubernetes = { enabled = true },
+          },
+
+          settings = {
+            redhat = { telemetry = { enabled = false } },
+            yaml = {
+              keyOrdering = false,
+              format = {
+                enable = true,
+              },
+              validate = true,
+              schemaStore = {
+                enable = false,
+                url = '',
+              },
+
+              -- schemas from store, matched by filename
+              -- loaded automatically
+              schemas = require('schemastore').yaml.schemas {
+                select = {
+                  -- k8s related
+                  'kustomization.yaml',
+                  -- github
+                  'GitHub Workflow',
+                  -- gitlab
+                  'gitlab-ci',
+                  -- ansible related
+                  'Ansible Execution Environment',
+                  'Ansible Inventory',
+                  'Ansible Navigator Configuration',
+                  'Ansible Playbook',
+                  'Ansible Requirements',
+                  'Ansible Rulebook',
+                  'Ansible Tasks File',
+                  'Ansible Vars File',
+                  'Ansible-lint Configuration',
+                  -- others
+                  'Taskfile config',
+                },
+              },
+            },
+          },
+        },
       }
 
       -- Ensure the servers and tools above are installed
@@ -663,6 +739,7 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'yamlls', -- YAML Language Server
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -716,6 +793,7 @@ require('lazy').setup({
         -- javascript = { { "prettierd", "prettier" } },
         go = { 'goimports', 'gofmt' },
         rust = { 'rustfmt' },
+        yaml = { 'yamlfix' },
       },
     },
   },
@@ -792,8 +870,8 @@ require('lazy').setup({
           -- If you prefer more traditional completion keymaps,
           -- you can uncomment the following lines
           ['<CR>'] = cmp.mapping.confirm { select = true },
-          ['<Tab>'] = cmp.mapping.select_next_item(),
-          ['<S-Tab>'] = cmp.mapping.select_prev_item(),
+          -- ['<Tab>'] = cmp.mapping.select_next_item(), -- Tab is used by copilot to confirm completion
+          -- ['<S-Tab>'] = cmp.mapping.select_prev_item(),
 
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
@@ -893,7 +971,21 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
+      ensure_installed = {
+        'bash',
+        'rust',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'vim',
+        'vimdoc',
+        'go',
+        'python',
+        'json',
+        'yaml',
+        'hcl',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -931,7 +1023,7 @@ require('lazy').setup({
   --  Here are some example plugins that I've included in the Kickstart repository.
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
-  -- require 'kickstart.plugins.debug',
+  require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
