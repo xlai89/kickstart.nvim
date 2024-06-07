@@ -251,6 +251,14 @@ require('lazy').setup({
 
   'github/copilot.vim',
 
+  {
+    'windwp/nvim-autopairs',
+    event = 'InsertEnter',
+    config = true,
+    -- use opts = {} for passing setup options
+    -- this is equalent to setup({}) function
+  },
+
   -- navigate seamlessly between vim and tmux splits
   -- using a consistent set of hotkeys.
   {
@@ -739,13 +747,18 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
-        'yamlls', -- YAML Language Server
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
       require('mason-lspconfig').setup {
         handlers = {
           function(server_name)
+            -- workaround to avoid conflict with configuration by rustaceanvim
+            -- reference: https://github.com/mrcjkb/rustaceanvim/discussions/94#discussioncomment-7813716
+            if server_name == 'rust_analyzer' then
+              return
+            end
+
             local server = servers[server_name] or {}
             -- This handles overriding only values explicitly passed
             -- by the server configuration above. Useful when disabling
@@ -756,6 +769,12 @@ require('lazy').setup({
         },
       }
     end,
+  },
+
+  {
+    'mrcjkb/rustaceanvim',
+    version = '^4', -- Recommended
+    -- more configuration in lua/kickstart/plugins/debug.lua
   },
 
   { -- Autoformat
@@ -974,6 +993,7 @@ require('lazy').setup({
       ensure_installed = {
         'bash',
         'rust',
+        'toml',
         'html',
         'lua',
         'luadoc',

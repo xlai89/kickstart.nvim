@@ -23,10 +23,13 @@ return {
 
     -- Add your own debuggers here
     'leoluz/nvim-dap-go',
+
+    -- some other dependencies
   },
   config = function()
     local dap = require 'dap'
     local dapui = require 'dapui'
+    local codelldb = require('mason-registry').get_package('codelldb'):get_install_path() .. '/codelldb'
 
     require('mason-nvim-dap').setup {
       -- Makes a best effort to setup the various debuggers with
@@ -90,6 +93,33 @@ return {
         -- On Windows delve must be run attached or it crashes.
         -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
         detached = vim.fn.has 'win32' == 0,
+      },
+    }
+
+    -- Configurations for rust debugging with rustaceanvim
+    -- reference: https://github.com/mfussenegger/nvim-dap/wiki/C-C---Rust-(via--codelldb)
+    dap.adapters.codelldb = {
+      type = 'server',
+      port = '${port}',
+      executable = {
+        -- CHANGE THIS to your path!
+        command = codelldb,
+        args = { '--port', '${port}' },
+
+        -- On windows codelldb must be run attached or it crashes
+        detached = vim.fn.has 'win32' == 0,
+      },
+    }
+    dap.configurations.rust = {
+      {
+        name = 'Launch file',
+        type = 'codelldb',
+        request = 'launch',
+        program = function()
+          return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+        end,
+        cwd = '${workspaceFolder}',
+        stopOnEntry = false,
       },
     }
   end,
