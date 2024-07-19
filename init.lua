@@ -175,6 +175,9 @@ vim.opt.foldlevel = 99
 vim.opt.foldlevelstart = 1
 vim.opt.foldnestmax = 4
 
+-- For obsidian: https://github.com/epwalsh/obsidian.nvim#concealing-characters
+vim.opt.conceallevel = 2
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -300,6 +303,27 @@ require('lazy').setup({
       require('bufferline').setup {}
     end,
   },
+
+  --   { -- markdown preview: commented out because cannot open browser in WSL
+  --     'toppair/peek.nvim',
+  --     build = 'deno task --quiet build:fast',
+  --     event = { 'VeryLazy' },
+  --     keys = {
+  --       {
+  --         '<leader>op',
+  --         function()
+  --           local peek = require 'peek'
+  --           if peek.is_open() then
+  --             peek.close()
+  --           else
+  --             peek.open()
+  --           end
+  --         end,
+  --         desc = 'Peek (Markdown Preview)',
+  --       },
+  --     },
+  --     opts = { theme = 'dark', app = 'chromium' },
+  --   },
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -645,8 +669,9 @@ require('lazy').setup({
         marksman = {},
         -- clangd = {},
         gopls = {},
-        -- pyright = {},
+        pyright = {},
         rust_analyzer = {},
+        ansiblels = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -740,7 +765,7 @@ require('lazy').setup({
       --    :Mason
       --
       --  You can press `g?` for help in this menu.
-      require('mason').setup()
+      require('mason').setup { ensure_installed = { 'ansible-lint' } }
 
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
@@ -812,7 +837,8 @@ require('lazy').setup({
         -- javascript = { { "prettierd", "prettier" } },
         go = { 'goimports', 'gofmt' },
         rust = { 'rustfmt' },
-        yaml = { 'yamlfix' },
+        -- yaml = { 'yamlfix' }, -- commented out because modified ansible playbooks unwantedly
+        ansible = { 'ansible-lint' },
       },
     },
   },
@@ -949,6 +975,38 @@ require('lazy').setup({
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
+  -- Managing notes
+  {
+    'epwalsh/obsidian.nvim',
+    version = '*', -- recommended, use latest release instead of latest commit
+    lazy = true,
+    ft = 'markdown',
+    -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
+    -- event = {
+    --   -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
+    --   -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/**.md"
+    --   "BufReadPre path/to/my-vault/**.md",
+    --   "BufNewFile path/to/my-vault/**.md",
+    -- },
+    dependencies = {
+      -- Required.
+      'nvim-lua/plenary.nvim',
+    },
+    opts = {
+      workspaces = {
+        -- {
+        -- name = 'personal',
+        -- path = '~/vaults/personal',
+        -- },
+        {
+          name = 'work',
+          path = '~/github/schaumin-thoughts/',
+        },
+      },
+      default_workspace = 'work',
+    },
+  },
+
   { -- Collection of various small independent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -1005,6 +1063,7 @@ require('lazy').setup({
         'json',
         'yaml',
         'hcl',
+        'terraform',
       },
       -- Autoinstall languages that are not installed
       auto_install = true,
