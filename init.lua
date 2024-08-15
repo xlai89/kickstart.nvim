@@ -89,7 +89,7 @@ P.S. You can delete this when you're done too. It's your config now! :)
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
-vim.g.clipboard = {
+--[[ vim.g.clipboard = {
   name = 'WslClipboard',
   copy = {
     ['+'] = 'clip.exe',
@@ -100,7 +100,7 @@ vim.g.clipboard = {
     ['*'] = 'powershell.exe -c [Console]::Out.Write($(Get-Clipboard -Raw).tostring().replace("`r", ""))',
   },
   cache_enabled = 0,
-}
+} ]]
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
@@ -668,10 +668,11 @@ require('lazy').setup({
       local servers = {
         marksman = {},
         -- clangd = {},
-        gopls = {},
+        -- gopls = {},
         pyright = {},
         rust_analyzer = {},
         ansiblels = {},
+        html = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -834,7 +835,8 @@ require('lazy').setup({
         --
         -- You can use a sub-list to tell conform to run *until* a formatter
         -- is found.
-        -- javascript = { { "prettierd", "prettier" } },
+        -- Conform will run the first available formatter
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
         go = { 'goimports', 'gofmt' },
         rust = { 'rustfmt' },
         -- yaml = { 'yamlfix' }, -- commented out because modified ansible playbooks unwantedly
@@ -1091,6 +1093,24 @@ require('lazy').setup({
       --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
       --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
     end,
+  },
+
+  {
+    'windwp/nvim-ts-autotag',
+    -- opts = {
+    --   -- Defaults
+    --   enable_close = true, -- Auto close tags
+    --   enable_rename = true, -- Auto rename pairs of tags
+    --   enable_close_on_slash = false, -- Auto close on trailing </
+    -- },
+    -- Also override individual filetype configs, these take priority.
+    -- Empty by default, useful if one of the "opts" global settings
+    -- doesn't work well in a specific filetype
+    per_filetype = {
+      ['html'] = {
+        enable_close = false,
+      },
+    },
   },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
