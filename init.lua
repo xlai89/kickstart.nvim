@@ -254,6 +254,29 @@ require('lazy').setup({
 
   'github/copilot.vim',
 
+  { 
+    'nvim-java/nvim-java',
+    dependencies = {
+      'nvim-java/lua-async-await',
+      'nvim-java/nvim-java-refactor',
+      'nvim-java/nvim-java-core',
+      'nvim-java/nvim-java-test',
+      'nvim-java/nvim-java-dap',
+      'MunifTanjim/nui.nvim',
+      'neovim/nvim-lspconfig',
+      'mfussenegger/nvim-dap',
+      {
+        'williamboman/mason.nvim',
+        opts = {
+          registries = {
+            'github:nvim-java/mason-registry',
+            'github:mason-org/mason-registry',
+          },
+        },
+      },
+    },
+  },
+
   {
     'windwp/nvim-autopairs',
     event = 'InsertEnter',
@@ -682,20 +705,39 @@ require('lazy').setup({
         -- tsserver = {},
         --
 
-        lua_ls = {
-          -- cmd = {...},
-          -- filetypes = { ...},
-          -- capabilities = {},
+        -- use java installed by nix as suggested in README of nvim-java/nvim-java
+        -- https://github.com/nvim-java/nvim-java/blob/04e3a41afce7357ad7c8d9c6676f0f3b5f5634e6/README.md#method-2
+        jdtls = {
           settings = {
-            Lua = {
-              completion = {
-                callSnippet = 'Replace',
-              },
-              -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              -- diagnostics = { disable = { 'missing-fields' } },
-            },
-          },
+            java = {
+              configuration = {
+                runtimes = {
+                  {
+                    name = "JavaSE-21",
+                    -- TODO: may have to updated regularly ?
+                    path = "/nix/store/1frnfh27i5pqk9xqahrjchlwyfzqgs1y-openjdk-21.0.5+11/lib/openjdk",
+                    default = true,
+                  }
+                }
+              }
+            }
+          }
         },
+
+        -- lua_ls = {
+        --   -- cmd = {...},
+        --   -- filetypes = { ...},
+        --   -- capabilities = {},
+        --   settings = {
+        --     Lua = {
+        --       completion = {
+        --         callSnippet = 'Replace',
+        --       },
+        --       -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
+        --       -- diagnostics = { disable = { 'missing-fields' } },
+        --     },
+        --   },
+        -- },
 
         yamlls = {
           -- Have to add this for yamlls to understand that we support line folding
@@ -767,6 +809,13 @@ require('lazy').setup({
       --
       --  You can press `g?` for help in this menu.
       require('mason').setup { ensure_installed = { 'ansible-lint' } }
+
+      -- Ensure setup nvim-java before lspconfig
+      -- More configs here: https://github.com/nvim-java/nvim-java/blob/04e3a41afce7357ad7c8d9c6676f0f3b5f5634e6/lua/java/config.lua
+      require('java').setup {
+        spring_boot_tools = { enable = false },
+        jdk = { auto_install = false }, -- won't work anyway out of the box, because https://nix.dev/guides/faq#how-to-run-non-nix-executables
+      }
 
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
@@ -1066,6 +1115,7 @@ require('lazy').setup({
         'yaml',
         'hcl',
         'terraform',
+        'java',
       },
       -- Autoinstall languages that are not installed
       auto_install = true,
