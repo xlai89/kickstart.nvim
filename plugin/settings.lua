@@ -12,7 +12,9 @@
 } ]]
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = true
+-- NOTE: nixCats: we asked nix if we have it instead of setting it here.
+-- because nix is more likely to know if we have a nerd font or not.
+vim.g.have_nerd_font = nixCats("have_nerd_font")
 
 -- Make line numbers default
 vim.opt.number = true

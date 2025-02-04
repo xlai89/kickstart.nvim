@@ -9,6 +9,8 @@
 return {
   -- NOTE: Yes, you can install new plugins here!
   'mfussenegger/nvim-dap',
+  -- NOTE: nixCats: return true only if category is enabled, else false
+  enabled = require('nixCatsUtils').enableForCategory 'kickstart-debug',
   -- NOTE: And you can specify dependencies as well
   dependencies = {
     -- Creates a beautiful debugger UI
@@ -18,8 +20,9 @@ return {
     'nvim-neotest/nvim-nio',
 
     -- Installs the debug adapters for you
-    'williamboman/mason.nvim',
-    'jay-babu/mason-nvim-dap.nvim',
+    -- NOTE: nixCats: dont use mason on nix. We can already download stuff just fine.
+    { 'williamboman/mason.nvim', enabled = require('nixCatsUtils').lazyAdd(true, false) },
+    { 'jay-babu/mason-nvim-dap.nvim', enabled = require('nixCatsUtils').lazyAdd(true, false) },
 
     -- Add your own debuggers here
     'leoluz/nvim-dap-go',
@@ -29,24 +32,26 @@ return {
   config = function()
     local dap = require 'dap'
     local dapui = require 'dapui'
-    local codelldb = require('mason-registry').get_package('codelldb'):get_install_path() .. '/codelldb'
 
-    require('mason-nvim-dap').setup {
-      -- Makes a best effort to setup the various debuggers with
-      -- reasonable debug configurations
-      automatic_installation = true,
+    -- NOTE: nixCats: dont use mason on nix. We can already download stuff just fine.
+    if not require('nixCatsUtils').isNixCats then
+      require('mason-nvim-dap').setup {
+        -- Makes a best effort to setup the various debuggers with
+        -- reasonable debug configurations
+        automatic_installation = true,
 
-      -- You can provide additional configuration to the handlers,
-      -- see mason-nvim-dap README for more information
-      handlers = {},
+        -- You can provide additional configuration to the handlers,
+        -- see mason-nvim-dap README for more information
+        handlers = {},
 
-      -- You'll need to check that you have the required things installed
-      -- online, please don't ask me how to install them :)
-      ensure_installed = {
-        -- Update this to ensure that you have the debuggers for the langs you want
-        'delve',
-      },
-    }
+        -- You'll need to check that you have the required things installed
+        -- online, please don't ask me how to install them :)
+        ensure_installed = {
+          -- Update this to ensure that you have the debuggers for the langs you want
+          'delve',
+        },
+      }
+    end
 
     -- Basic debugging keymaps, feel free to change to your liking!
     vim.keymap.set('n', '<F5>', dap.continue, { desc = 'Debug: Start/Continue' })
@@ -96,31 +101,33 @@ return {
     --   },
     -- }
 
-    -- Configurations for rust debugging with rustaceanvim
-    -- reference: https://github.com/mfussenegger/nvim-dap/wiki/C-C---Rust-(via--codelldb)
-    dap.adapters.codelldb = {
-      type = 'server',
-      port = '${port}',
-      executable = {
-        -- CHANGE THIS to your path!
-        command = codelldb,
-        args = { '--port', '${port}' },
-
-        -- On windows codelldb must be run attached or it crashes
-        detached = vim.fn.has 'win32' == 0,
-      },
-    }
-    dap.configurations.rust = {
-      {
-        name = 'Launch file',
-        type = 'codelldb',
-        request = 'launch',
-        program = function()
-          return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
-        end,
-        cwd = '${workspaceFolder}',
-        stopOnEntry = false,
-      },
-    }
+    -- -- Configurations for rust debugging with rustaceanvim
+    -- -- local codelldb = require('mason-registry').get_package('codelldb'):get_install_path() .. '/codelldb'
+    -- local codelldb =
+    -- -- reference: https://github.com/mfussenegger/nvim-dap/wiki/C-C---Rust-(via--codelldb)
+    -- dap.adapters.codelldb = {
+    --   type = 'server',
+    --   port = '${port}',
+    --   executable = {
+    --     -- CHANGE THIS to your path!
+    --     command = codelldb,
+    --     args = { '--port', '${port}' },
+    --
+    --     -- On windows codelldb must be run attached or it crashes
+    --     detached = vim.fn.has 'win32' == 0,
+    --   },
+    -- }
+    -- dap.configurations.rust = {
+    --   {
+    --     name = 'Launch file',
+    --     type = 'codelldb',
+    --     request = 'launch',
+    --     program = function()
+    --       return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+    --     end,
+    --     cwd = '${workspaceFolder}',
+    --     stopOnEntry = false,
+    --   },
+    -- }
   end,
 }

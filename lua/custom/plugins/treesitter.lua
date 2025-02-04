@@ -1,9 +1,12 @@
 return 
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
-    build = ':TSUpdate',
+    build = require('nixCatsUtils').lazyAdd(':TSUpdate'),
+    -- build = ':TSUpdate',
     opts = {
-      ensure_installed = {
+      -- NOTE: nixCats: use lazyAdd to only set these 2 options if nix wasnt involved.
+      -- because nix already ensured they were installed.
+      ensure_installed = require('nixCatsUtils').lazyAdd({
         'bash',
         'rust',
         'toml',
@@ -20,9 +23,10 @@ return
         'hcl',
         'terraform',
         'java',
-      },
+      }),
       -- Autoinstall languages that are not installed
-      auto_install = true,
+      auto_install = require('nixCatsUtils').lazyAdd(true, false),
+
       highlight = {
         enable = true,
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
