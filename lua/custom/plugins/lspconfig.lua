@@ -210,94 +210,17 @@ return { -- LSP Configuration & Plugins
       -- tsserver = {},
       --
 
-      -- use java installed by nix as suggested in README of nvim-java/nvim-java
-      -- https://github.com/nvim-java/nvim-java/blob/04e3a41afce7357ad7c8d9c6676f0f3b5f5634e6/README.md#method-2
-      jdtls = {
-        settings = {
-          java = {
-            configuration = {
-              runtimes = {
-                {
-                  name = 'JavaSE-21',
-                  -- TODO: may have to updated regularly ?
-                  path = '/nix/store/1frnfh27i5pqk9xqahrjchlwyfzqgs1y-openjdk-21.0.5+11/lib/openjdk',
-                  default = true,
-                },
-              },
-            },
-          },
-        },
-      },
+      jdtls = require 'custom.plugins.lsp_servers.jdtls',
 
-      yamlls = {
-        -- Have to add this for yamlls to understand that we support line folding
-        capabilities = {
-          textDocument = {
-            foldingRange = {
-              dynamicRegistration = false,
-              lineFoldingOnly = true,
-            },
-          },
-        },
-
-        -- lazy-load schemastore when needed
-        on_new_config = function(new_config)
-          new_config.settings.yaml.schemas = vim.tbl_deep_extend('force', new_config.settings.yaml.schemas or {}, require('schemastore').yaml.schemas())
-        end,
-
-        -- detect k8s schemas based on file content
-        builtin_matchers = {
-          kubernetes = { enabled = true },
-        },
-
-        settings = {
-          redhat = { telemetry = { enabled = false } },
-          yaml = {
-            keyOrdering = false,
-            format = {
-              enable = true,
-            },
-            validate = true,
-            schemaStore = {
-              enable = false,
-              url = '',
-            },
-
-            -- schemas from store, matched by filename
-            -- loaded automatically
-            schemas = require('schemastore').yaml.schemas {
-              select = {
-                -- k8s related
-                'kustomization.yaml',
-                -- github
-                'GitHub Workflow',
-                -- gitlab
-                'gitlab-ci',
-                -- ansible related
-                'Ansible Execution Environment',
-                'Ansible Inventory',
-                'Ansible Navigator Configuration',
-                'Ansible Playbook',
-                'Ansible Requirements',
-                'Ansible Rulebook',
-                'Ansible Tasks File',
-                'Ansible Vars File',
-                'Ansible-lint Configuration',
-                -- others
-                'Taskfile config',
-              },
-            },
-          },
-        },
-      },
+      yamlls = require 'custom.plugins.lsp_servers.yamlls',
     }
 
     -- NOTE: nixCats: nixd is not available on mason.
     if require('nixCatsUtils').isNixCats then
       servers.nixd = {}
-    -- else
-    --   servers.rnix = {}
-    --   servers.nil_ls = {}
+      -- else
+      --   servers.rnix = {}
+      --   servers.nil_ls = {}
     end
     servers.lua_ls = {
       -- cmd = {...},

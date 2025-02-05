@@ -101,33 +101,7 @@ return {
     --   },
     -- }
 
-    -- Configurations for rust debugging with rustaceanvim
-    -- local codelldb = require('mason-registry').get_package('codelldb'):get_install_path() .. '/codelldb'
-    local codelldb_bin = '/nix/store/8nma6fpgpr8q9793hxylj8s9i8j6svqa-vscode-extension-vadimcn-vscode-lldb-1.10.0/share/vscode/extensions/vadimcn.vscode-lldb/adapter/codelldb'
-    -- reference: <https://github.com/mfussenegger/nvim-dap/wiki/C-C---Rust-(via--codelldb)>
-    dap.adapters.codelldb = {
-      type = 'server',
-      port = '${port}',
-      executable = {
-        -- CHANGE THIS to your path!
-        command = codelldb_bin,
-        args = { '--port', '${port}' },
-
-        -- On windows codelldb must be run attached or it crashes
-        detached = vim.fn.has 'win32' == 0,
-      },
-    }
-    dap.configurations.rust = {
-      {
-        name = 'Launch file',
-        type = 'codelldb',
-        request = 'launch',
-        program = function()
-          return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
-        end,
-        cwd = '${workspaceFolder}',
-        stopOnEntry = false,
-      },
-    }
+    dap.adapters.codelldb = require 'custom.plugins.dap.adapters.codelldb'
+    dap.configurations.rust = require 'custom.plugins.dap.configurations.rust'
   end,
 }
