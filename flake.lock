@@ -1,5 +1,21 @@
 {
   "nodes": {
+    "lldb-nix-fix": {
+      "locked": {
+        "lastModified": 1712740125,
+        "narHash": "sha256-YXvbuxzaLmHgzWyQK4Cxduz8oMMaq6FgiVnqJhWCAjE=",
+        "owner": "mstone",
+        "repo": "nixpkgs",
+        "rev": "d0415e5734f5ed2c58d7ba96b5153e3028f6ca20",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mstone",
+        "ref": "darwin-fix-vscode-lldb",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "nixCats": {
       "locked": {
         "lastModified": 1738561344,
@@ -33,6 +49,7 @@
     },
     "root": {
       "inputs": {
+        "lldb-nix-fix": "lldb-nix-fix",
         "nixCats": "nixCats",
         "nixpkgs": "nixpkgs"
       }
