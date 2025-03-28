@@ -1,0 +1,60 @@
+{
+  "nodes": {
+    "lldb-nix-fix": {
+      "locked": {
+        "lastModified": 1712740125,
+        "narHash": "sha256-YXvbuxzaLmHgzWyQK4Cxduz8oMMaq6FgiVnqJhWCAjE=",
+        "owner": "mstone",
+        "repo": "nixpkgs",
+        "rev": "d0415e5734f5ed2c58d7ba96b5153e3028f6ca20",
+        "type": "github"
+      },
+      "original": {
+        "owner": "mstone",
+        "ref": "darwin-fix-vscode-lldb",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixCats": {
+      "locked": {
+        "lastModified": 1738561344,
+        "narHash": "sha256-gPdnByr60DgCHMiez/YYnYCrjRIQqwCLwjQDLZahoBU=",
+        "owner": "BirdeeHub",
+        "repo": "nixCats-nvim",
+        "rev": "bd3934a579ef4182ddadd007281ab264137fff78",
+        "type": "github"
+      },
+      "original": {
+        "owner": "BirdeeHub",
+        "repo": "nixCats-nvim",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1738517419,
+        "narHash": "sha256-tttEXgKimgbtPvxFl+Avos4P4lssIqxHhxpLbbvNekk=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "8532db2a88ba56de9188af72134d93e39fd825f3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "lldb-nix-fix": "lldb-nix-fix",
+        "nixCats": "nixCats",
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
