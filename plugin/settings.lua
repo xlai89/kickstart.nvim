@@ -94,3 +94,6 @@ vim.opt.conceallevel = 2
 
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
+
+-- Disable github copilot by default
+vim.cmd ':Copilot disable'
